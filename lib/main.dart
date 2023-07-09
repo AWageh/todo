@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo/home/home_screen.dart';
+import 'package:todo/shared/styles/my_theme.dart';
 
 void main(){
   runApp(MyApp());
@@ -15,8 +16,8 @@ class MyApp extends StatelessWidget {
       routes: {
     HomeScreen.routName:(context)=>HomeScreen(),
       },
-      // theme: ,
-      // darkTheme: ,
+      themeMode:ThemeMode.light,
+      theme: MyThemeData.lightTheme,
 
     );
   }
