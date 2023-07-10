@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:todo/firebase/firebase_function.dart';
+import 'package:todo/model/task_model.dart';
 
 class ShowAddTaskBottomSheet extends StatefulWidget {
 
@@ -8,6 +10,10 @@ class ShowAddTaskBottomSheet extends StatefulWidget {
 
 class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
   var formKey = GlobalKey<FormState>();
+  var tasksTitleCdntroller = TextEditingController();
+  var tasksDescriptionCdntroller = TextEditingController();
+  DateTime selectedDate = DateUtils.dateOnly(DateTime.now());
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +41,7 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
                 height: 10,
               ),
               TextFormField(
+                controller: tasksTitleCdntroller,
                 validator: (value) {
                   if(value==null||value.isEmpty){
                     return 'please enter task title';
@@ -62,6 +69,7 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
                 height: 10,
               ),
               TextFormField(
+                controller: tasksDescriptionCdntroller,
                 validator: (value) {
                   if(value==null||value.isEmpty){
                     return 'please enter task Description';
@@ -109,7 +117,7 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    '12/12/2012',
+                    selectedDate.toString().substring(0,10),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
@@ -121,7 +129,14 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
               ElevatedButton(
                   onPressed: () {
                     if(formKey.currentState!.validate()){
-                      print('c8');
+                      TaskModel task=TaskModel(title:tasksTitleCdntroller.text ,
+                          date: selectedDate.millisecondsSinceEpoch,
+                          description: tasksDescriptionCdntroller.text,
+                          status: false);
+
+                      FirebaseFunction.addTaskToFirestore(task).then((value) {
+                        Navigator.of(context);
+                      });
                     }
                   },
                   child: Text(
@@ -138,11 +153,18 @@ class _ShowAddTaskBottomSheetState extends State<ShowAddTaskBottomSheet> {
     );
   }
 
-  void chooseTaskDate(BuildContext context) {
-    showDatePicker(context: context,
-        initialDate: DateTime.now(),
+  void chooseTaskDate(BuildContext context)async {
+    DateTime ? chosenDate = await showDatePicker(context: context,
+        initialDate: selectedDate,
         firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(Duration(days: 365))
+        lastDate: DateTime.now().add(Duration(days: 365)),
+
     );
+    if(chosenDate!=null){
+      selectedDate=DateUtils.dateOnly(chosenDate);
+      setState(() {
+
+      });
+    }
   }
 }
